@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一覧</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .sidenav {
+            height: 100%;
+            width: 200px;
+            background-color: #ffffff;
+            padding-top: 20px;
+            position: fixed;
+            top: 0;
+        }
+
+        .sidenav a {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #000;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .sidenav a:hover {
+            color: #818181;
+        }
+
+        .content-container {
+            margin-left: 220px;
+            flex: 1;
+        }
+
+        .content {
+            padding: 16px;
+        }
+
+        .footer {
+            text-align: center;
+            background-color: #333;
+            color: #fff;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            margin-top: 15px;
+            margin-left: 200px;
+        }
+
+        .narrow-cell {
+            width: 80px;
+        }
+        .edit-cell{
+            width: 80px;
+        }
+        td button {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .delete-cell {
+            width: 60px;
+        }
+
+        table {
+            width: 75%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            margin: auto;
+        }
+
+        table th {
+            background-color: #f2f2f2;
+            color: black;
+            padding: 5px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .delete-button {
+            background-color: #ff0000;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 60px;
+        }
+
+        table tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        table td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table td:nth-child(2) {
+            text-align: center;
+        }
+
+        table td:nth-child(3) {
+            text-align: center;
+        }
+
+        table td:nth-child(4) {
+            text-align: center;
+        }
+
+        table td:nth-child(5) {
+            text-align: center;
+        }
+
+        .toggle-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .thumbnail-container {
+            width: 50px;
+            height: 50px;
+            overflow: hidden;
+            position: relative;
+            margin: auto;
+        }
+
+        .blog-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 画像を領域に合わせて切り取る */
+            border-radius: 8px;
+            border: 1px solid var(--color-border-low-emphasis);
+            box-sizing: border-box;
+        }
+
+        .content-container {
+            margin-left: 220px;
+            max-width: 1600px;
+            flex: 1;
+        }
+
+        .content {
+            padding: 16px;
+        }
+        .status-cell {
+        width: 70px;
+    }
+        .switching{
+            width: 70px;
+        }
+        .title{
+            width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidenav">
+        <ul>
+            <li class="list active">
+                <a href="dashboard.html">
+                    <span class="icon"><ion-icon name="home-outline"></ion-icon></span>
+                    <span class="title">記事編集</span>
+                </a>
+            </li>
+
+            <li class="list">
+                <a href="list.html">
+                    <span class="icon"><ion-icon name="list-outline"></ion-icon></span>
+                    <span class="title">記事一覧</span>
+                </a>
+            </li>
+
+            <li class="list">
+                <a href="create.html">
+                    <span class="icon"><ion-icon name="add-outline"></ion-icon></span>
+                    <span class="title">記事作成</span>
+                </a>
+            </li>
+
+            <li class="list">
+                <a href="user_view/index.html">
+                    <span class="icon"><ion-icon name="eye-outline"></ion-icon></span>
+                    <span class="title">ユーザー表示</span>
+                </a>
+            </li>
+
+            <li class="list">
+                <a href="new_account.html">
+                    <span class="icon"><ion-icon name="person-add-outline"></ion-icon></span>
+                    <span class="title">アカウント作成</span>
+                </a>
+            </li>
+
+            <li class="list">
+                <a href="account-list.html">
+                    <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
+                    <span class="title">アカウントリスト</span>
+                </a>
+            </li>
+
+            <li class="list">
+                <a href="#" onclick="logout()">
+                    <span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
+                    <span class="title">ログアウト</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content-container"style="padding-top: 20px;">
+        <h1>記事一覧</h1>
+        <table id="blog-list" class="blog-table">
+            <thead>
+                <tr>
+                    <th class="title">タイトル</th>
+                    <th class="thumbnail-container">サムネイル</th>
+                    <th class="status-cell">状態</th>
+                    <th class="switching">操作</th>
+                    <th class="edit-cell">編集</th>
+                    <th class="delete-cell">削除</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script
+        type="module"
+        src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+        nomodule
+        src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script>
+    <script>
+           // ログイン状態を確認
+            var isLoggedIn = localStorage.getItem('loggedIn') === 'true';
+
+            // ログインしていない場合はリダイレクト
+            if (!isLoggedIn) {
+            window.location.href = '../index.html';
+            }
+            
+            window.onload = function () {
+      loadBlogs();
+    };
+        function isLoggedIn() {
+            return localStorage.getItem('loggedIn') === 'true';
+        }
+
+        function togglePublication(blogId) {
+            var blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+
+            for (var i = 0; i < blogs.length; i++) {
+                if (blogs[i].id === blogId) {
+                    blogs[i].published = !blogs[i].published;
+                    break;
+                }
+            }
+
+            localStorage.setItem('blogs', JSON.stringify(blogs));
+            loadBlogs();
+        }
+
+        function deleteBlog(blogId) {
+            var blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+            for (var i = 0; i < blogs.length; i++) {
+                if (blogs[i].id === blogId) {
+                    blogs.splice(i, 1);
+                    break;
+                }
+            }
+            localStorage.setItem('blogs', JSON.stringify(blogs));
+            loadBlogs();
+        }
+
+        function loadBlogs() {
+    var blogTable = document.getElementById('blog-list').getElementsByTagName('tbody')[0];
+    blogTable.innerHTML = '';
+
+    var blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+
+    for (var i = 0; i < blogs.length; i++) {
+        let blog = blogs[i];
+
+        var row = blogTable.insertRow(0);
+
+        var titleCell = row.insertCell(0);
+        titleCell.innerText = blog.title;
+
+        // サムネイルセル
+        var thumbnailCell = row.insertCell(1);
+        var thumbnailContainer = document.createElement('div');
+        thumbnailContainer.className = 'thumbnail-container';
+        var thumbnailImg = document.createElement('img');
+        thumbnailImg.src = blog.thumbnail; // ブログオブジェクトがサムネイルのURLを持っていると仮定します
+        thumbnailImg.alt = 'Thumbnail';
+        thumbnailImg.className = 'blog-thumbnail';
+        thumbnailContainer.appendChild(thumbnailImg);
+        thumbnailCell.appendChild(thumbnailContainer);
+
+        var statusCell = row.insertCell(2);
+        statusCell.innerText = blog.published ? '公開中' : '非公開';
+
+        // 背景色の設定
+        if (blog.published) {
+            statusCell.style.backgroundColor = '#4CAF50'; // 公開中の場合、緑色の背景色
+            statusCell.style.color = 'white'; // テキストカラーを白に設定
+        } else {
+            statusCell.style.backgroundColor = '#FF0000'; // 非公開の場合、赤色の背景色
+            statusCell.style.color = 'white'; // テキストカラーを白に設定
+        }
+
+        var actionCell = row.insertCell(3);
+        actionCell.className = 'narrow-cell';
+        var toggleButton = document.createElement('button');
+        toggleButton.innerText = blog.published ? '非公開にする' : '公開する';
+
+        // クロージャ内で正しい記事を参照するために、blogId を使う
+        toggleButton.addEventListener('click', function (blogId) {
+            return function () {
+                togglePublication(blogId);
+            };
+        }(blog.id));
+
+        actionCell.appendChild(toggleButton);
+
+        var editCell = row.insertCell(4);
+        editCell.className = 'edit-cell'; // 編集セルに狭いセル用のクラスを追加
+        var editButton = document.createElement('button');
+        editButton.innerText = '編集';
+        editButton.addEventListener('click', function (blogId) {
+            return function () {
+                window.location.href = 'edit.html?id=' + blogId;
+            };
+        }(blog.id));
+        editCell.appendChild(editButton);
+
+        var deleteCell = row.insertCell(5);
+        deleteCell.className = 'delete-cell'; // 削除セルに狭いセル用のクラスを追加
+        var deleteButton = document.createElement('button');
+        deleteButton.innerText = '削除';
+        deleteButton.className = 'delete-button';
+        deleteButton.addEventListener('click', function (blogId) {
+            return function (event) {
+                event.preventDefault();
+                if (confirm('この記事を削除しますか？')) {
+                    deleteBlog(blogId);
+                }
+            };
+        }(blog.id));
+        deleteCell.appendChild(deleteButton);
+    }
+}
+function logout() {
+      localStorage.setItem('loggedIn', 'false');
+      window.location.href = '../index.html';
+    }
+    </script>
+    <div class="footer">
+        &copy; StepNote
+    </div>
+</body>
+
+</html>
