@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>トップページ</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@fortawesome/fontawesome-free@5.15.3/css/all.css"
+    />
+    <style>
+      /* サムネイルのスタイル */
+      .thumbnail-container {
+        width: 299px;
+        height: 270px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .blog-thumbnail {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid var(--color-border-low-emphasis);
+        box-sizing: border-box;
+      }
+
+      /* 検索フォームを右側に配置 */
+      .search-container {
+        text-align: right;
+        margin-right: 40px;
+      }
+
+      .search-button-container {
+        display: inline-block;
+        text-align: right;
+        margin-top: 10px;
+      }
+
+      #search-button {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #007bff;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 16px; /* アイコンのサイズを調整 */
+        line-height: 1; /* アイコンの高さを調整 */
+        text-align: center; /* アイコンを中央に配置 */
+      }
+
+      #search-button i {
+        color: #fff; /* アイコンの色を設定 */
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <a href="index.html">トップ</a>
+      <a href="login.html">ログイン</a>
+      <a href="new_account.html">アカウント新規作成</a>
+    </header>
+
+    <div class="content-container" style="padding-top: 50px">
+      <h1>記事一覧</h1>
+      <div class="search-container">
+        <label for="category-select">カテゴリ:</label>
+        <select id="category-select" onchange="updateCategoryInfo()">
+          <option value="">すべて</option>
+          <!-- カテゴリ選択肢はJavaScriptで生成 -->
+        </select>
+      </div>
+      <div class="search-container">
+        <input
+          type="text"
+          id="search-input"
+          placeholder="検索キーワードを入力"
+          onkeyup="searchBlogsOnEnter(event)"
+        />
+        <button id="search-button" onclick="searchBlogs()">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+      <div id="category-info" class="category-info"></div>
+      <div id="blog-list" class="blog-container"></div>
+    </div>
+
+    <script>
+      window.onload = function () {
+        generateCategoryOptions(); // カテゴリ選択ボックスの選択肢を生成
+        loadBlogs(); // ブログ記事を読み込み
+      };
+
+      // カテゴリ選択ボックスの選択肢を動的に生成する
+      function generateCategoryOptions() {
+        var categorySelect = document.getElementById("category-select");
+        var blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+        var categories = [];
+
+        // ブログ記事からカテゴリ一覧を収集
+        blogs.forEach(function (blog) {
+          if (blog.categories) {
+            blog.categories.forEach(function (category) {
+              if (!categories.includes(category)) {
+                categories.push(category);
+              }
+            });
+          }
+        });
+
+        // カテゴリ選択肢を生成
+        categories.forEach(function (category) {
+          var option = document.createElement("option");
+          option.value = category;
+          option.textContent = category;
+          categorySelect.appendChild(option);
+        });
+      }
+
+      function togglePublication(blogId) {
+        var blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+
+        for (var i = 0; i < blogs.length; i++) {
+          if (blogs[i].id === blogId) {
+            // 公開状態を切り替える
+            blogs[i].published = !blogs[i].published;
+            break;
+          }
+        }
+
+        // 更新されたブログ配列をlocalStorageに保存
+        localStorage.setItem("blogs", JSON.stringify(blogs));
+
+        // 変更を反映させるためにブログを再読み込み
+        loadBlogs();
+      }
+
+      function loadBlogs() {
+        var blogList = document.getElementById("blog-list");
+        blogList.innerHTML = "";
+
+        var blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+
+        for (var i = blogs.length - 1; i >= 0; i--) {
+          var blog = blogs[i];
+
+          if (blog.published) {
+            // 公開されている記事の場合のみ表示
+            var blogDiv = document.createElement("div");
+            blogDiv.className = "blog-box";
+
+            if (blog.thumbnail) {
+              var thumbnailDiv = document.createElement("div");
+              thumbnailDiv.className = "thumbnail-container";
+
+              var thumbnailImg = document.createElement("img");
+              thumbnailImg.src = blog.thumbnail;
+              thumbnailImg.alt = "サムネイル";
+              thumbnailImg.className = "blog-thumbnail";
+              thumbnailDiv.appendChild(thumbnailImg);
+              blogDiv.appendChild(thumbnailDiv);
+            }
+
+            var blogTitle = document.createElement("h2");
+            blogTitle.innerText = blog.title;
+            blogTitle.style.textAlign = "left";
+            blogTitle.className = "blog-Title";
+            blogDiv.appendChild(blogTitle);
+
+            var blogLink = document.createElement("a");
+            blogLink.href = "view.html?id=" + blog.id;
+            blogLink.className = "blog-link";
+            blogLink.appendChild(blogDiv);
+
+            blogList.appendChild(blogLink);
+          }
+        }
+
+        updateCategoryInfo(); // カテゴリ情報を更新
+      }
+
+      function updateCategoryInfo() {
+        var categorySelect = document.getElementById("category-select");
+        var selectedCategory = categorySelect.value; // 選択されたカテゴリを取得
+        var blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+        var filteredBlogs = [];
+
+        if (selectedCategory) {
+          filteredBlogs = blogs.filter(function (blog) {
+            return (
+              blog.categories && blog.categories.includes(selectedCategory)
+            );
+          });
+        } else {
+          filteredBlogs = blogs;
+        }
+
+        var categoryInfo = document.getElementById("category-info");
+        categoryInfo.innerHTML = "";
+
+        var blogList = document.getElementById("blog-list");
+        blogList.innerHTML = "";
+        for (var i = filteredBlogs.length - 1; i >= 0; i--) {
+          var blog = filteredBlogs[i];
+
+          if (blog.published) {
+            var blogDiv = document.createElement("div");
+            blogDiv.className = "blog-box";
+
+            if (blog.thumbnail) {
+              var thumbnailDiv = document.createElement("div");
+              thumbnailDiv.className = "thumbnail-container";
+
+              var thumbnailImg = document.createElement("img");
+              thumbnailImg.src = blog.thumbnail;
+              thumbnailImg.alt = "サムネイル";
+              thumbnailImg.className = "blog-thumbnail";
+              thumbnailDiv.appendChild(thumbnailImg);
+              blogDiv.appendChild(thumbnailDiv);
+            }
+
+            var blogTitle = document.createElement("h2");
+            blogTitle.innerText = blog.title;
+            blogTitle.style.textAlign = "left";
+            blogTitle.className = "blog-Title";
+            blogDiv.appendChild(blogTitle);
+
+            var blogLink = document.createElement("a");
+            blogLink.href = "view.html?id=" + blog.id;
+            blogLink.className = "blog-link";
+            blogLink.appendChild(blogDiv);
+
+            blogList.appendChild(blogLink);
+          }
+        }
+      }
+
+      function searchBlogs() {
+        var searchInput = document
+          .getElementById("search-input")
+          .value.toLowerCase();
+        var blogList = document.getElementById("blog-list");
+        blogList.innerHTML = "";
+
+        var blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+
+        for (var i = blogs.length - 1; i >= 0; i--) {
+          var blog = blogs[i];
+
+          if (
+            blog.published &&
+            blog.title.toLowerCase().includes(searchInput)
+          ) {
+            var blogDiv = document.createElement("div");
+            blogDiv.className = "blog-box";
+
+            if (blog.thumbnail) {
+              var thumbnailDiv = document.createElement("div");
+              thumbnailDiv.className = "thumbnail-container";
+
+              var thumbnailImg = document.createElement("img");
+              thumbnailImg.src = blog.thumbnail;
+              thumbnailImg.alt = "サムネイル";
+              thumbnailImg.className = "blog-thumbnail";
+              thumbnailDiv.appendChild(thumbnailImg);
+              blogDiv.appendChild(thumbnailDiv);
+            }
+
+            var blogTitle = document.createElement("h2");
+            blogTitle.innerText = blog.title;
+            blogTitle.style.textAlign = "left";
+            blogTitle.className = "blog-Title";
+            blogDiv.appendChild(blogTitle);
+
+            var blogLink = document.createElement("a");
+            blogLink.href = "view.html?id=" + blog.id;
+            blogLink.className = "blog-link";
+            blogLink.appendChild(blogDiv);
+
+            blogList.appendChild(blogLink);
+          }
+        }
+      }
+
+      function searchBlogsOnEnter(event) {
+        if (event.keyCode === 13) {
+          // Enterキーが押されたら検索を実行
+          searchBlogs();
+        }
+      }
+    </script>
+
+    <div class="footer">&copy; Note of Beginning</div>
+  </body>
+</html>

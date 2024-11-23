@@ -4,9 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>トップページ</title>
-  <link rel="stylesheet" href="css/style.css">
+  <title>ユーザー表示</title>
+  <link rel="stylesheet" href="../../css/style.css">
   <link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@5.15.3/css/all.css">
+</head>
   <style>
     /* サムネイルのスタイル */
     .thumbnail-container {
@@ -59,13 +60,17 @@
 
 <body>
   <header class="header">
-    <a href="index.html">トップ</a>
-    <a href="login.html">ログイン</a>
-    <a href="new_account.html">アカウント新規作成</a>
+    <a href="../dashboard.html">記事編集</a>
+    <a href="../list.html">記事一覧</a>
+    <a href="../create.html">記事作成</a>
+    <a href="../user_view/index.html">ユーザー表示</a>
+    <a href="../new_account.html">アカウント作成</a>
+    <a href="../account-list.html">アカウントリスト</a>
+    <a href="#" onclick="logout()">ログアウト</a>
   </header>
 
   <div class="content-container" style="padding-top: 50px;">
-    <h1>記事一覧</h1>
+    <h1>記事一覧(非公開の記事も表示)</h1>
     <div class="search-container">
       <label for="category-select">カテゴリ:</label>
       <select id="category-select" onchange="updateCategoryInfo()">
@@ -83,7 +88,15 @@
   </div>
 
   <script>
-      window.onload = function () {
+    // ログイン状態を確認
+    var isLoggedIn = localStorage.getItem('loggedIn') === 'true';
+
+    // ログインしていない場合はリダイレクト
+    if (!isLoggedIn) {
+      window.location.href = '../../index.html';
+    }
+
+    window.onload = function () {
       generateCategoryOptions(); // カテゴリ選択ボックスの選択肢を生成
       loadBlogs(); // ブログ記事を読み込み
     };
@@ -133,48 +146,47 @@
     }
 
     function loadBlogs() {
-  var blogList = document.getElementById('blog-list');
-  blogList.innerHTML = '';
+      var blogList = document.getElementById('blog-list');
+      blogList.innerHTML = '';
 
-  var blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+      var blogs = JSON.parse(localStorage.getItem('blogs')) || [];
 
-  for (var i = blogs.length - 1; i >= 0; i--) {
-    var blog = blogs[i];
+      for (var i = blogs.length - 1; i >= 0; i--) {
+        var blog = blogs[i];
 
-    if (blog.published) { // 公開されている記事の場合のみ表示
-      var blogDiv = document.createElement('div');
-      blogDiv.className = 'blog-box';
+        if (blog) {
+          var blogDiv = document.createElement('div');
+          blogDiv.className = 'blog-box';
 
-      if (blog.thumbnail) {
-        var thumbnailDiv = document.createElement('div');
-        thumbnailDiv.className = 'thumbnail-container';
+          if (blog.thumbnail) {
+            var thumbnailDiv = document.createElement('div');
+            thumbnailDiv.className = 'thumbnail-container';
 
-        var thumbnailImg = document.createElement('img');
-        thumbnailImg.src = blog.thumbnail;
-        thumbnailImg.alt = 'サムネイル';
-        thumbnailImg.className = 'blog-thumbnail';
-        thumbnailDiv.appendChild(thumbnailImg);
-        blogDiv.appendChild(thumbnailDiv);
+            var thumbnailImg = document.createElement('img');
+            thumbnailImg.src = blog.thumbnail;
+            thumbnailImg.alt = 'サムネイル';
+            thumbnailImg.className = 'blog-thumbnail';
+            thumbnailDiv.appendChild(thumbnailImg);
+            blogDiv.appendChild(thumbnailDiv);
+          }
+
+          var blogTitle = document.createElement('h2');
+          blogTitle.innerText = blog.title;
+          blogTitle.style.textAlign = 'left';
+          blogTitle.className = 'blog-Title';
+          blogDiv.appendChild(blogTitle);
+
+          var blogLink = document.createElement('a');
+          blogLink.href = 'view.html?id=' + blog.id;
+          blogLink.className = 'blog-link';
+          blogLink.appendChild(blogDiv);
+
+          blogList.appendChild(blogLink);
+        }
       }
 
-      var blogTitle = document.createElement('h2');
-      blogTitle.innerText = blog.title;
-      blogTitle.style.textAlign = 'left';
-      blogTitle.className = 'blog-Title';
-      blogDiv.appendChild(blogTitle);
-
-      var blogLink = document.createElement('a');
-      blogLink.href = 'view.html?id=' + blog.id;
-      blogLink.className = 'blog-link';
-      blogLink.appendChild(blogDiv);
-
-      blogList.appendChild(blogLink);
+      updateCategoryInfo(); // カテゴリ情報を更新
     }
-  }
-
-  updateCategoryInfo(); // カテゴリ情報を更新
-}
-
 
     function updateCategoryInfo() {
       var categorySelect = document.getElementById('category-select');
@@ -193,12 +205,13 @@
       var categoryInfo = document.getElementById('category-info');
       categoryInfo.innerHTML = '';
 
+
       var blogList = document.getElementById('blog-list');
       blogList.innerHTML = '';
       for (var i = filteredBlogs.length - 1; i >= 0; i--) {
         var blog = filteredBlogs[i];
 
-        if (blog.published) {
+        if (blog) {
           var blogDiv = document.createElement('div');
           blogDiv.className = 'blog-box';
 
@@ -240,7 +253,7 @@
       for (var i = blogs.length - 1; i >= 0; i--) {
         var blog = blogs[i];
 
-        if (blog.published && blog.title.toLowerCase().includes(searchInput)) {
+        if (blog && blog.title.toLowerCase().includes(searchInput)) {
           var blogDiv = document.createElement('div');
           blogDiv.className = 'blog-box';
 
@@ -278,10 +291,16 @@
         searchBlogs();
       }
     }
+
+    function logout() {
+      localStorage.setItem('loggedIn', 'false');
+      window.location.href = '../../index.html';
+    }
   </script>
 
-  <div class="footer">
-    &copy; StepNote
-  </div>
+<div class="footer">
+  &copy; Note of Beginning
+</div>
 </body>
+
 </html>

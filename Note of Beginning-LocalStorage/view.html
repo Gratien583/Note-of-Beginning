@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>個別記事</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+
+      .article-container {
+        max-width: 1200px;
+        margin: 40px auto 20px;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #333;
+        margin-top: 20px;
+        letter-spacing: 3px;
+        background: #f3f3f3;
+        border-left: solid 10px #000000;
+        border-bottom: solid 3px #000000;
+      }
+
+      h2 {
+        color: #333;
+        margin-top: 20px;
+        border-left: 7px solid rgb(0, 0, 0);
+        font-size: 125% !important;
+      }
+
+      img {
+        overflow: hidden;
+        position: relative;
+        border-style: none;
+        max-width: 100%;
+        height: auto;
+        display: block; /* 画像をブロック要素として扱う */
+        margin: 0 auto; /* 左右のマージンを自動的に調整して中央に配置 */
+        height: 400px;
+      }
+
+      .mokuji {
+        color: #111111;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .title {
+        display: block;
+        font-size: 2em;
+        -webkit-margin-before: 0.67em;
+        -webkit-margin-after: 0.67em;
+        -webkit-margin-start: 0px;
+        -webkit-margin-end: 0px;
+        font-weight: bold;
+      }
+
+      #tableOfContents {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f4f4f4;
+      }
+
+      #tableOfContents h3 {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        color: #000000;
+      }
+
+      #tableOfContents ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      #tableOfContents li {
+        margin-bottom: 5px;
+      }
+
+      #tableOfContents a {
+        display: block;
+        border-bottom: 1px solid #e7e7e7;
+        padding: 8px;
+        color: #000000;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+
+      #tableOfContents a:hover {
+        background-color: #dddddd;
+      }
+
+      .sectionTitle {
+        font-size: 1.2em;
+        margin-top: 20px;
+        color: #333;
+        border-bottom: 1px solid #ccc;
+        border-left: 7px solid rgb(0, 0, 0);
+      }
+
+      .sectionContent {
+        color: #555;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      #blogContent a {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      #blogContent a:link {
+        color: inherit;
+      }
+      #blogContent a:visited {
+        color: inherit;
+      }
+      .date {
+        font-size: 0.9em;
+        color: #555;
+        margin-bottom: 20px;
+        padding: 5px 10px;
+        background-color: #f9f9f9;
+        border-left: solid 4px #333;
+        display: inline-block; /* or 'block' depending on layout */
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <a href="index.html">トップ</a>
+      <a href="login.html">ログイン</a>
+      <a href="new_account.html">アカウント新規作成</a>
+    </header>
+
+    <div class="article-container" id="articleContainer">
+      <!-- タイトルを表示 -->
+      <div class="title" id="blogTitle"></div>
+      <div class="date" id="blogDate"></div>
+      <!-- サムネイルを表示 -->
+      <img id="thumbnailImg" src="" alt="サムネイル" />
+      <!-- 目次を表示するコンテナ -->
+      <div id="tableOfContents"><p class="mokuji">目次</p></div>
+      <!-- 本文を表示するコンテナ -->
+      <div id="blogContent"></div>
+      <div id="categoryContainer"></div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // ローカルストレージから保存されたブログを取得
+        var blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+
+        // 記事のIDをURLパラメータから取得
+        var urlParams = new URLSearchParams(window.location.search);
+        var blogId = urlParams.get("id");
+
+        // 該当の記事IDのブログを取得
+        var blog = blogs.find(function (item) {
+          return item.id === blogId;
+        });
+        // 記事が非公開の場合、メッセージを表示してコンテンツを非表示にする
+        if (!blog || !blog.published) {
+          document.getElementById("articleContainer").style.display = "none";
+
+          // 非公開メッセージを表示する要素を取得して表示する
+          var nonPublishedMessage = document.createElement("p");
+          nonPublishedMessage.textContent = "この記事は非公開です。";
+          document.body.appendChild(nonPublishedMessage);
+          setTimeout(function () {
+            window.location.href = "index.html";
+          }, 3000); // 3秒後にindex.htmlへリダイレクト
+          return; // 処理を終了して以降のコードを実行しない
+        }
+        // 記事のタイトルをHTMLの<title>に設定
+        if (blog && blog.title) {
+          document.title = blog.title;
+        }
+
+        // 記事の日付を表示
+        var blogDate = document.getElementById("blogDate");
+        if (blog && blog.createdAt) {
+          blogDate.innerText = blog.createdAt;
+        } else {
+          blogDate.innerText = "作成日: 情報がありません";
+        }
+
+        // タイトルを表示
+        var blogTitle = document.getElementById("blogTitle");
+        blogTitle.innerText = blog ? blog.title : "記事が見つかりません";
+
+        // サムネイルを表示
+        var thumbnailImg = document.getElementById("thumbnailImg");
+        if (blog.thumbnail) {
+          thumbnailImg.src = blog.thumbnail;
+          thumbnailImg.alt = "サムネイル";
+        }
+        // カテゴリを表示
+        var categoryContainer = document.getElementById("categoryContainer");
+        if (blog && blog.categories && blog.categories.length > 0) {
+          var categories = blog.categories
+            .map(function (category) {
+              return "#" + category; // カテゴリ名の前に '#' を追加
+            })
+            .join("   "); // カテゴリをカンマで区切って表示
+          categoryContainer.innerHTML = categories;
+        }
+        // 目次を作成するためのコンテナを取得
+        var tableOfContentsContainer =
+          document.getElementById("tableOfContents");
+
+        // Quillで作成されたHTMLコンテンツを表示
+        var blogContent = document.getElementById("blogContent");
+        blogContent.innerHTML = blog.content;
+
+        // 目次に使用するh1とh2要素を取得
+        var headings = blogContent.querySelectorAll("h1, h2");
+
+        // 目次の項目を作成
+        var tableOfContents = document.createElement("ul");
+        headings.forEach(function (heading) {
+          var listItem = document.createElement("li");
+          var anchor = document.createElement("a");
+          anchor.href = "#" + heading.id;
+          anchor.textContent = heading.textContent;
+
+          // 修正後のコード
+          anchor.addEventListener("click", function (event) {
+            event.preventDefault();
+            var section = document.getElementById(heading.id); // heading.idを使用
+            if (section) {
+              section.scrollIntoView({ behavior: "smooth" });
+            }
+          });
+
+          // 見出しのレベルに基づいて左マージンを設定
+          var level =
+            heading.tagName === "H1" ? 1 : heading.tagName === "H2" ? 2 : 1; // H1の場合は1、H2の場合は32（H3などの他の見出しレベルも追加できます）
+          anchor.style.marginLeft = (level === 2 ? 32 : 10) + "px"; // H2の場合は32px、それ以外は10px
+
+          listItem.appendChild(anchor);
+          tableOfContents.appendChild(listItem);
+        });
+
+        tableOfContentsContainer.appendChild(tableOfContents);
+      });
+    </script>
+
+    <div class="footer">&copy;Note of Beginning</div>
+  </body>
+</html>

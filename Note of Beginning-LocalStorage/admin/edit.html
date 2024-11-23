@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>記事の編集</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link
+      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.quilljs.com/1.3.6/quill.bubble.css"
+    />
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <style>
+      button {
+        /* ボタンのスタイル */
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 10px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-bottom: 10px;
+      }
+
+      .mokuji {
+        color: #111111;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      #toc {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f4f4f4;
+      }
+
+      #toc h3 {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        color: #000000;
+      }
+
+      #toc ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      #toc li {
+        margin-bottom: 5px;
+      }
+
+      #toc a {
+        display: block;
+        border-bottom: 1px solid #e7e7e7;
+        padding: 8px;
+        color: #000000;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+
+      #toc a:hover {
+        background-color: #dddddd;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      .sidenav {
+        height: 100%;
+        width: 200px;
+        background-color: #ffffff;
+        padding-top: 20px;
+        position: fixed;
+        top: 0;
+      }
+
+      .sidenav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 16px;
+        color: #000;
+        display: block;
+        margin-top: 10px;
+      }
+
+      .sidenav a:hover {
+        color: #818181;
+      }
+      .footer {
+        text-align: center;
+        background-color: #333;
+        color: #fff;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        margin-top: auto; /* Push the footer to the bottom */
+        margin-left: 200px;
+      }
+      .form-container {
+        margin-left: 220px; /* Adjust this value based on your design */
+
+        flex: 1; /* Allow the content to take remaining vertical space */
+      }
+
+      .content {
+        padding: 16px;
+      }
+      #thumbnailPreview {
+        max-width: 300px;
+        max-height: 200px;
+      }
+
+      #thumbnailPreview img {
+        width: 70%;
+        height: auto;
+      }
+
+      #content {
+        height: 400px;
+        margin: auto;
+        background-color: white;
+      }
+
+      .ql-editor {
+        width: 100%;
+      }
+
+      #toc {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f1f1f1;
+      }
+
+      .ql-snow .ql-editor ul,
+      .ql-snow .ql-editor ol {
+        list-style-type: disc;
+        margin-left: 1.5em;
+      }
+
+      .ql-snow .ql-editor ol {
+        list-style-type: decimal;
+        margin-left: 1.5em;
+      }
+
+      .ql-snow .ql-editor [style*="text-align: center;"] {
+        text-align: center !important;
+      }
+
+      .ql-snow .ql-editor [style*="text-align: right;"] {
+        text-align: right !important;
+      }
+
+      .ql-snow .ql-editor[dir="rtl"] {
+        direction: rtl;
+        text-align: right !important;
+      }
+      .delete-category-button {
+        background-color: transparent;
+        color: red;
+        padding: 3px 10px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        margin: 4px;
+      }
+
+      .CategoryButton {
+        color: #4caf50;
+        padding: 10px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-bottom: 10px;
+        background-color: transparent;
+        align-items: center; /* Center items vertically */
+      }
+
+      #Categoryicon {
+        font-size: 24px;
+        vertical-align: bottom;
+        margin-bottom: 2px;
+      }
+
+      .button-text {
+        font-size: 16px; /* Adjust text size as needed */
+        vertical-align: middle; /* Align text vertically */
+        color: #000000;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="sidenav">
+      <ul>
+        <li class="list active">
+          <a href="dashboard.html">
+            <span class="icon"><ion-icon name="home-outline"></ion-icon></span>
+            <span class="title">記事編集</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="list.html">
+            <span class="icon"><ion-icon name="list-outline"></ion-icon></span>
+            <span class="title">記事一覧</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="create.html">
+            <span class="icon"><ion-icon name="add-outline"></ion-icon></span>
+            <span class="title">記事作成</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="user_view/index.html">
+            <span class="icon"><ion-icon name="eye-outline"></ion-icon></span>
+            <span class="title">ユーザー表示</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="new_account.html">
+            <span class="icon"
+              ><ion-icon name="person-add-outline"></ion-icon
+            ></span>
+            <span class="title">アカウント作成</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="account-list.html">
+            <span class="icon"
+              ><ion-icon name="person-outline"></ion-icon
+            ></span>
+            <span class="title">アカウントリスト</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="#" onclick="logout()">
+            <span class="icon"
+              ><ion-icon name="log-out-outline"></ion-icon
+            ></span>
+            <span class="title">サインアウト</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="form-container" style="padding-top: 50px">
+      <h1>記事を編集</h1>
+      <form id="blogForm">
+        <!-- 記事IDの表示 -->
+        <input type="hidden" id="blogId" name="blogId" value="" />
+
+        <label for="title">タイトル:</label>
+        <input
+          type="text"
+          id="title"
+          style="width: 100%"
+          name="title"
+          required
+        />
+
+        <label for="content">本文:</label>
+        <div id="content" required></div>
+
+        <label for="newCategory">カテゴリ:</label>
+        <input type="text" id="newCategory" name="newCategory" />
+        <button id="addCategoryButton" class="CategoryButton" type="button">
+          <ion-icon
+            name="add"
+            id="Categoryicon"
+            class="Categoryicon"
+          ></ion-icon>
+          <span class="button-text">追加</span>
+        </button>
+
+        <div id="categoryCheckboxes">
+          <!-- 一度入力したカテゴリがここに表示されます -->
+        </div>
+
+        <label for="thumbnail">サムネイル URL:</label>
+        <input
+          type="text"
+          style="width: 100%"
+          id="thumbnail"
+          name="thumbnail"
+          required
+        />
+
+        <div id="thumbnailPreview"></div>
+
+        <!-- 目次を表示するための要素 -->
+        <div id="toc"><p class="mokuji">目次</p></div>
+
+        <button type="submit" class="create-blog-button">記事を保存</button>
+      </form>
+    </div>
+
+    <div class="footer">&copy; Note of Beginning</div>
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script>
+    <script>
+      // ログイン状態を確認
+      var isLoggedIn = localStorage.getItem("loggedIn") === "true";
+
+      // ログインしていない場合はリダイレクト
+      if (!isLoggedIn) {
+        window.location.href = "../index.html";
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // 編集対象のブログ記事のIDを取得
+        var blogIdToEdit = getBlogIdToEdit();
+
+        // ローカルストレージからブログデータを取得
+        var blogsData = localStorage.getItem("blogs") || "[]";
+        var blogs = [];
+
+        try {
+          blogs = JSON.parse(blogsData);
+        } catch (error) {
+          console.error(
+            "localStorageからJSONの解析中にエラーが発生しました:",
+            error
+          );
+        }
+
+        // 編集対象のブログ記事を取得
+        var blogToEdit = blogs.find(function (blog) {
+          return blog.id === blogIdToEdit;
+        });
+        console.log("blogToEdit:", blogToEdit);
+
+        // ブログデータに基づいてカテゴリをチェック
+        checkCategoriesForBlog(blogToEdit);
+
+        // フォームにブログデータを表示
+        if (blogToEdit) {
+          document.getElementById("blogId").value = blogToEdit.id;
+          document.getElementById("title").value = blogToEdit.title;
+          document.getElementById("content").innerHTML = blogToEdit.content;
+          document.getElementById("thumbnail").value = blogToEdit.thumbnail;
+
+          // サムネイルプレビューの更新
+          updateThumbnailPreview(blogToEdit.thumbnail);
+        }
+
+        // Quill エディタの初期化
+        var quillContent = new Quill("#content", {
+          theme: "snow",
+          modules: {
+            toolbar: [
+              [{ header: [1, 2, false] }],
+              ["bold", "italic", "underline", "strike"],
+              [{ color: [] }, { background: [] }],
+              [{ list: "ordered" }, { list: "bullet" }],
+              ["link"],
+            ],
+          },
+        });
+        var newCategoryInput = document.getElementById("newCategory");
+        var addCategoryButton = document.getElementById("addCategoryButton");
+
+        addCategoryButton.addEventListener("click", function () {
+          var newCategory = document.getElementById("newCategory").value.trim();
+          if (newCategory !== "") {
+            addCategoryToCheckboxes(newCategory); // チェックボックスにカテゴリを追加
+            saveCategoryToLocalStorage(newCategory); // カテゴリをlocalStorageに保存
+            document.getElementById("newCategory").value = ""; // カテゴリ名をクリア
+          }
+        });
+
+        // 選択したブログに関連するカテゴリをチェックする関数
+        function checkCategoriesForBlog(blogToEdit) {
+          if (blogToEdit && blogToEdit.categories) {
+            var checkboxes = document.querySelectorAll(
+              'input[name="selectedCategories"]'
+            );
+            checkboxes.forEach(function (checkbox) {
+              if (blogToEdit.categories.includes(checkbox.value)) {
+                checkbox.checked = true;
+              } else {
+                checkbox.checked = false; // チェックを外す
+              }
+            });
+          }
+        }
+
+        // カテゴリを選択した場合に呼び出される関数
+        function getSelectedCategories() {
+          var selectedCategories = [];
+          var checkboxes = document.querySelectorAll(
+            'input[name="selectedCategories"]:checked'
+          );
+
+          checkboxes.forEach(function (checkbox) {
+            selectedCategories.push(checkbox.value);
+          });
+
+          return selectedCategories;
+        }
+
+        // ページが読み込まれた際の処理
+        window.addEventListener("load", function () {
+          // カテゴリ情報を元にチェックボックスを生成
+          var existingCategories = localStorage.getItem("categories") || "[]";
+          var categories = JSON.parse(existingCategories);
+
+          // 編集対象のブログ記事のIDを取得
+          var blogIdToEdit = getBlogIdToEdit();
+
+          // 編集対象のブログ記事を取得
+          var blogToEdit = blogs.find(function (blog) {
+            return blog.id === blogIdToEdit;
+          });
+          console.log("blogToEdit:", blogToEdit);
+
+          // チェックボックスの状態を設定
+          var categoryCheckboxes = document.querySelectorAll(
+            'input[name="selectedCategories"]'
+          );
+          console.log("Checkbox value and checked status:");
+          categoryCheckboxes.forEach(function (checkbox) {
+            console.log("Value:", checkbox.value, "Checked:", checkbox.checked);
+            if (
+              blogToEdit &&
+              blogToEdit.categories &&
+              blogToEdit.categories.includes(checkbox.value.toString())
+            ) {
+              checkbox.checked = true;
+            } else {
+              checkbox.checked = false;
+            }
+          });
+          // カテゴリ情報を元にチェックボックスを生成
+          categories.forEach(function (categoryName) {
+            // チェックボックスを生成
+            addCategoryToCheckboxes(categoryName);
+
+            // 記事に設定されているカテゴリが含まれている場合、チェックを入れる
+            if (
+              blogToEdit &&
+              blogToEdit.categories &&
+              blogToEdit.categories.includes(categoryName)
+            ) {
+              document.getElementById(
+                "categoryCheckbox_" + categoryName
+              ).checked = true;
+            }
+          });
+        });
+
+        // 選択したブログに関連するカテゴリをチェックする関数
+        function checkCategoriesForBlog(blogToEdit) {
+          if (blogToEdit && blogToEdit.categories) {
+            var checkboxes = document.querySelectorAll(
+              'input[name="selectedCategories"]'
+            );
+            checkboxes.forEach(function (checkbox) {
+              if (blogToEdit.categories.includes(checkbox.value)) {
+                checkbox.checked = true;
+              } else {
+                checkbox.checked = false; // チェックを外す
+              }
+            });
+          }
+        }
+
+        // 記事に割り当てられているカテゴリ情報を取得する関数
+        function getSelectedCategoriesFromBlogs(blogs) {
+          var selectedCategories = [];
+          blogs.forEach(function (blog) {
+            selectedCategories = selectedCategories.concat(blog.categories);
+          });
+          // 重複を削除して返す
+          return [...new Set(selectedCategories)];
+        }
+
+        // カテゴリと削除ボタンを表示する関数
+        function addCategoryToCheckboxes(categoryName) {
+          var categoryCheckboxes =
+            document.getElementById("categoryCheckboxes");
+          var checkboxId = "categoryCheckbox_" + categoryName;
+          var deleteButtonId = "deleteButton_" + categoryName;
+
+          if (!document.getElementById(checkboxId)) {
+            var checkbox = document.createElement("input");
+            checkbox.setAttribute("type", "checkbox");
+            checkbox.setAttribute("id", checkboxId);
+            checkbox.setAttribute("name", "selectedCategories");
+            checkbox.setAttribute("value", categoryName);
+
+            var label = document.createElement("label");
+            label.setAttribute("for", checkboxId);
+            label.textContent = categoryName;
+
+            var deleteButton = document.createElement("button");
+            deleteButton.setAttribute("type", "button");
+            deleteButton.setAttribute("id", deleteButtonId);
+            deleteButton.innerHTML =
+              '<ion-icon name="trash-outline" style="font-size: 20px;"></ion-icon>'; // Adjust font-size as needed
+            deleteButton.classList.add("delete-category-button");
+            deleteButton.addEventListener("click", function () {
+              deleteCategory(categoryName);
+            });
+
+            categoryCheckboxes.appendChild(checkbox);
+            categoryCheckboxes.appendChild(label);
+            categoryCheckboxes.appendChild(deleteButton);
+            categoryCheckboxes.appendChild(document.createElement("br"));
+          }
+        }
+
+        function deleteCategory(categoryName) {
+          // 削除するカテゴリの確認をユーザーに求める
+          var confirmation = confirm("本当にカテゴリを削除しますか？");
+
+          // ユーザーが OK を選択した場合のみカテゴリを削除する
+          if (confirmation) {
+            var checkboxId = "categoryCheckbox_" + categoryName;
+            var deleteButtonId = "deleteButton_" + categoryName;
+
+            // 対応する要素を取得
+            var checkbox = document.getElementById(checkboxId);
+            var deleteButton = document.getElementById(deleteButtonId);
+
+            // 要素が存在するかを確認してから削除処理を行う
+            if (checkbox && deleteButton) {
+              var label = checkbox.nextElementSibling;
+              var br = deleteButton.nextElementSibling;
+
+              checkbox.remove();
+              label.remove();
+              deleteButton.remove();
+              br.remove();
+
+              // ローカルストレージからも削除
+              var existingCategories =
+                localStorage.getItem("categories") || "[]";
+              var categories = JSON.parse(existingCategories);
+              var categoryIndex = categories.indexOf(categoryName);
+              if (categoryIndex !== -1) {
+                categories.splice(categoryIndex, 1);
+                localStorage.setItem("categories", JSON.stringify(categories));
+              }
+            }
+          }
+        }
+
+        // カテゴリ情報をlocalStorageに保存する関数
+        function saveCategoryToLocalStorage(categoryName) {
+          var existingCategories = localStorage.getItem("categories") || "[]";
+          var categories = JSON.parse(existingCategories);
+
+          if (!categories.includes(categoryName)) {
+            categories.push(categoryName);
+            localStorage.setItem("categories", JSON.stringify(categories));
+          }
+        }
+
+        function formatDateString(date) {
+          const year = date.getFullYear();
+          const month = date.getMonth() + 1; // getMonth() returns month from 0 to 11
+          const day = date.getDate();
+          const hours = String(date.getHours()).padStart(2, "0"); // padStart ensures two digits
+          const minutes = String(date.getMinutes()).padStart(2, "0");
+          const seconds = String(date.getSeconds()).padStart(2, "0");
+
+          // Array of Japanese weekday abbreviations
+          const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+          const weekday = weekdays[date.getDay()]; // getDay() returns weekday from 0 (Sunday) to 6 (Saturday)
+
+          return `${year}年 ${month}月 ${day}日(${weekday}) ${hours}:${minutes}:${seconds}`;
+        }
+
+        // サムネイル入力欄のイベントリスナーを追加
+        document
+          .getElementById("thumbnail")
+          .addEventListener("input", function () {
+            var thumbnailValue = this.value.trim();
+            updateThumbnailPreview(thumbnailValue);
+          });
+
+        // フォームのサブミットイベントを追加
+        document
+          .getElementById("blogForm")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // 入力データの取得
+            var blogId =
+              document.getElementById("blogId").value || generateUniqueId();
+            var blog = {
+              id: blogId,
+              title: document.getElementById("title").value,
+              content: quillContent.root.innerHTML, // QuillのHTMLコンテンツを使用
+              thumbnail: document.getElementById("thumbnail").value.trim(),
+              categories: getSelectedCategories(), // チェックされたカテゴリを取得する関数を呼び出す
+              createdAt: formatDateString(new Date()),
+            };
+
+            // 保存処理
+            saveBlog(blog);
+
+            // ダッシュボードにリダイレクト
+            window.location.href = "dashboard.html";
+          });
+
+        // Quill エディタのテキスト変更時のイベントリスナー
+        quillContent.on("text-change", function () {
+          updateTableOfContents();
+        });
+
+        // サムネイルプレビューの更新
+        function updateThumbnailPreview(thumbnailValue) {
+          var thumbnailPreview = document.getElementById("thumbnailPreview");
+          thumbnailPreview.innerHTML = "";
+
+          if (thumbnailValue !== "") {
+            var thumbnailImage = document.createElement("img");
+            thumbnailImage.src = thumbnailValue;
+            thumbnailImage.alt = "Thumbnail Preview";
+
+            thumbnailPreview.appendChild(thumbnailImage);
+          }
+        }
+
+        // ブログデータの保存
+        function saveBlog(blog) {
+          var blogsData = localStorage.getItem("blogs") || "[]";
+          var blogs = [];
+
+          try {
+            blogs = JSON.parse(blogsData);
+          } catch (error) {
+            console.error(
+              "localStorageからJSONの解析中にエラーが発生しました:",
+              error
+            );
+          }
+
+          var existingBlogIndex = blogs.findIndex(function (existingBlog) {
+            return existingBlog.id === blog.id;
+          });
+
+          if (existingBlogIndex !== -1) {
+            blogs[existingBlogIndex] = blog;
+          } else {
+            blogs.push(blog);
+          }
+
+          localStorage.setItem("blogs", JSON.stringify(blogs));
+        }
+
+        // ユニークなIDの生成
+        function generateUniqueId() {
+          return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+            /[xy]/g,
+            function (c) {
+              var r = (Math.random() * 16) | 0,
+                v = c === "x" ? r : (r & 0x3) | 0x8;
+              return v.toString(16);
+            }
+          );
+        }
+
+        // 編集対象のブログ記事IDを取得する関数
+        function getBlogIdToEdit() {
+          // 現在のURLを取得
+          var currentUrl = window.location.href;
+
+          // URLからクエリ文字列（?以降の部分）を取得
+          var queryString = currentUrl.split("?")[1];
+
+          // クエリ文字列が存在する場合
+          if (queryString) {
+            // クエリ文字列をパラメータごとに分割
+            var queryParams = queryString.split("&");
+
+            // 各パラメータを処理
+            for (var i = 0; i < queryParams.length; i++) {
+              // パラメータを「キー=値」の形に分割
+              var param = queryParams[i].split("=");
+
+              // パラメータが「id」である場合
+              if (param[0] === "id") {
+                // パラメータの値（ブログ記事ID）を返す
+                console.log("blogIdToEdit:", param[1]); // 追加
+                return param[1];
+              }
+            }
+          }
+
+          // パラメータが見つからない場合はnullを返すか、適切なデフォルト値を返す
+          console.log("blogIdToEdit is null"); // 追加
+          return null;
+        }
+      });
+
+      function updateTableOfContents() {
+        var tocContainer = document.getElementById("toc");
+        tocContainer.innerHTML = '<P class="mokuji">目次</P>';
+
+        var headers = document.querySelectorAll("#content h1, #content h2");
+        if (headers.length === 0) {
+          //console.log('ヘッダーが見つかりません。');
+          return;
+        }
+
+        headers.forEach(function (header, index) {
+          var level = header.tagName.charAt(1);
+          var text = header.innerText;
+          var anchor = "toc-link-" + index; // 固有のIDを生成
+
+          //console.log('ヘッダーを処理中:', header, 'ID:', anchor);
+
+          // 目次項目の生成とリンクに固有のIDを付ける
+          tocContainer.innerHTML +=
+            '<a href="#' +
+            anchor +
+            '" style="margin-left: ' +
+            (level - 1) * 10 +
+            'px;">' +
+            text +
+            "</a><br>";
+
+          // 目次項目に固有のIDをセクションヘッダーに設定
+          header.id = anchor;
+
+          // h1の場合も目次項目に追加
+          if (level === 1) {
+            tocContainer.innerHTML +=
+              '<a href="#' +
+              anchor +
+              '" style="margin-left: ' +
+              (level - 1) * 10 +
+              'px;">' +
+              text +
+              "</a><br>";
+          }
+        });
+      }
+
+      function logout() {
+        localStorage.setItem("loggedIn", "false");
+        window.location.href = "../index.html";
+      }
+    </script>
+  </body>
+</html>

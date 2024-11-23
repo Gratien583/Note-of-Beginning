@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>管理者メインページ</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      body {
+        margin: 0;
+        background-color: #f6f6f6;
+        padding: 0;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      .sidenav {
+        height: 100%;
+        width: 200px;
+        background-color: #ffffff;
+        padding-top: 20px;
+        position: fixed;
+        top: 0;
+      }
+
+      .sidenav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 16px;
+        color: #000;
+        display: block;
+        margin-top: 10px;
+      }
+
+      .sidenav a:hover {
+        color: #818181;
+      }
+
+      .content-container {
+        margin-left: 220px; /* Adjust this value based on your design */
+        margin-top: 30px;
+        flex: 1; /* Allow the content to take remaining vertical space */
+      }
+
+      .content {
+        padding: 16px;
+      }
+
+      .footer {
+        text-align: center;
+        background-color: #333;
+        color: #fff;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        margin-top: auto; /* Push the footer to the bottom */
+        margin-left: 200px;
+      }
+      /* サムネイルのスタイル */
+      .thumbnail-container {
+        width: 299px; /* 幅を指定 */
+        height: 270px; /* 高さを指定 */
+        overflow: hidden; /* オーバーフローを隠す */
+        position: relative; /* 相対位置指定 */
+      }
+
+      .blog-thumbnail {
+        width: 100%; /* 幅を100%に設定 */
+        height: 100%; /* 高さを100%に設定 */
+        object-fit: cover; /* 画像をサムネイル領域にフィットさせる */
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid var(--color-border-low-emphasis);
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="sidenav">
+      <ul>
+        <li class="list active">
+          <a href="dashboard.html">
+            <span class="icon"><ion-icon name="home-outline"></ion-icon></span>
+            <span class="title">記事編集</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="list.html">
+            <span class="icon"><ion-icon name="list-outline"></ion-icon></span>
+            <span class="title">記事一覧</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="create.html">
+            <span class="icon"><ion-icon name="add-outline"></ion-icon></span>
+            <span class="title">記事作成</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="user_view/index.html">
+            <span class="icon"><ion-icon name="eye-outline"></ion-icon></span>
+            <span class="title">ユーザー表示</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="new_account.html">
+            <span class="icon"
+              ><ion-icon name="person-add-outline"></ion-icon
+            ></span>
+            <span class="title">アカウント作成</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="account-list.html">
+            <span class="icon"
+              ><ion-icon name="person-outline"></ion-icon
+            ></span>
+            <span class="title">アカウントリスト</span>
+          </a>
+        </li>
+
+        <li class="list">
+          <a href="#" onclick="logout()">
+            <span class="icon"
+              ><ion-icon name="log-out-outline"></ion-icon
+            ></span>
+            <span class="title">ログアウト</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="content-container">
+      <div id="blog-list" class="blog-container"></div>
+    </div>
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script>
+    <script>
+      // ログイン状態を確認
+      var isLoggedIn = localStorage.getItem("loggedIn") === "true";
+
+      // ログインしていない場合はリダイレクト
+      if (!isLoggedIn) {
+        window.location.href = "../index.html";
+      }
+
+      function logoutWithMessage(message) {
+        alert(message); // ログアウト時のメッセージを表示
+        localStorage.setItem("loggedIn", "false");
+        window.location.href = "../index.html"; // ログアウト後のリダイレクト
+      }
+
+      window.onload = function () {
+        loadBlogs();
+      };
+
+      const list = document.querySelectorAll(".list");
+      console.log(list);
+      function activeLink() {
+        list.forEach((item) =>
+          // console.log(item);
+          item.classList.remove("active")
+        );
+        this.classList.add("active");
+      }
+
+      list.forEach((item) => {
+        item.addEventListener("click", activeLink);
+      });
+      window.onload = function () {
+        loadBlogs();
+      };
+
+      function togglePublication(blogId) {
+        var blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+
+        for (var i = 0; i < blogs.length; i++) {
+          if (blogs[i].id === blogId) {
+            blogs[i].published = !blogs[i].published;
+            break;
+          }
+        }
+
+        localStorage.setItem("blogs", JSON.stringify(blogs));
+        loadBlogs();
+      }
+      function loadBlogs() {
+        var blogList = document.getElementById("blog-list");
+        blogList.innerHTML = "";
+
+        var blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+
+        for (var i = blogs.length - 1; i >= 0; i--) {
+          var blog = blogs[i];
+
+          var blogDiv = document.createElement("div");
+          blogDiv.className = "blog-box";
+
+          if (blog.thumbnail) {
+            var thumbnailDiv = document.createElement("div");
+            thumbnailDiv.className = "thumbnail-container";
+
+            var thumbnailImg = document.createElement("img");
+            thumbnailImg.src = blog.thumbnail;
+            thumbnailImg.alt = "サムネイル";
+            thumbnailImg.className = "blog-thumbnail";
+
+            // 修正：サムネイルの高さを最大値で制限
+            thumbnailDiv.style.width = "299px";
+            thumbnailDiv.style.maxHeight = "270px";
+            thumbnailDiv.appendChild(thumbnailImg);
+
+            blogDiv.appendChild(thumbnailDiv);
+          }
+          var blogTitle = document.createElement("h2");
+          blogTitle.innerText = blog.title;
+          blogDiv.appendChild(blogTitle);
+
+          // リンク要素の追加
+          var blogLink = document.createElement("a");
+          blogLink.href = "edit.html?id=" + blog.id;
+          blogLink.className = "blog-link";
+          blogLink.appendChild(blogDiv);
+          // 公開状態に応じてスタイルを設定
+          if (blog.published) {
+            blogDiv.style.borderBottom = "15px solid lightgreen"; // 公開された記事の下部に緑色の線を追加
+          } else {
+            blogDiv.style.borderBottom = "15px solid red"; // 非公開記事の下部に赤い線を追加
+          }
+          // リンク要素を記事リストに追加
+          blogList.appendChild(blogLink);
+        }
+      }
+      function logout() {
+        localStorage.setItem("loggedIn", "false");
+        window.location.href = "../index.html";
+      }
+    </script>
+    <div class="footer">&copy; Note of Beginning</div>
+  </body>
+</html>
